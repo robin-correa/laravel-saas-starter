@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureActiveTenantMembership;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -20,7 +21,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
 Route::middleware([
     'web',
+    'auth',
     InitializeTenancyByPath::class,
+    EnsureActiveTenantMembership::class,
 ])->prefix('{tenant}')->name('tenant.')->group(function () {
     Route::get('/dashboard', function (): string {
         return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
