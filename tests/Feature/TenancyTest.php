@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -9,8 +10,10 @@ afterEach(function () {
 });
 
 test('tenant routes identify the tenant from each request path', function () {
-    $firstTenant = Tenant::factory()->create();
-    $secondTenant = Tenant::factory()->create();
+    $user = User::factory()->create();
+    $firstTenant = Tenant::factory()->hasAttached($user)->create();
+    $secondTenant = Tenant::factory()->hasAttached($user)->create();
+    $this->actingAs($user);
 
     $this->get(route('tenant.dashboard', ['tenant' => $firstTenant->id]))
         ->assertOk()
@@ -22,6 +25,8 @@ test('tenant routes identify the tenant from each request path', function () {
 });
 
 test('tenant routes return 404 when the tenant ID does not exist', function () {
+    $this->actingAs(User::factory()->create());
+
     $response = $this->get(route('tenant.dashboard', ['tenant' => 'missing-tenant']));
 
     $response->assertNotFound();
