@@ -46,6 +46,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             ->withTimestamps();
     }
 
+    public function firstActiveTenant(): ?Tenant
+    {
+        return $this->tenants()
+            ->wherePivot('is_active', true)
+            ->orderBy('tenant_users.created_at')
+            ->orderBy('tenants.id')
+            ->first();
+    }
+
     /**
      * Get the attributes that should be cast.
      *
