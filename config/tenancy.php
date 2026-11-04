@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-use Stancl\Tenancy\Bootstrappers\CacheTenancyBootstrapper;
-use Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper;
+use App\Models\Tenant;
 use Stancl\Tenancy\Bootstrappers\FilesystemTenancyBootstrapper;
 use Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper;
 use Stancl\Tenancy\Database\Models\Domain;
-use Stancl\Tenancy\Database\Models\Tenant;
 use Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager;
 use Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager;
 use Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager;
@@ -36,8 +34,6 @@ return [
      * To configure their behavior, see the config keys below.
      */
     'bootstrappers' => [
-        DatabaseTenancyBootstrapper::class,
-        CacheTenancyBootstrapper::class,
         FilesystemTenancyBootstrapper::class,
         QueueTenancyBootstrapper::class,
         // Stancl\Tenancy\Bootstrappers\RedisTenancyBootstrapper::class, // Note: phpredis is needed
