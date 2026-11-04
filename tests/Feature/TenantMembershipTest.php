@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\TenantRolesSeeder;
 use Illuminate\Database\UniqueConstraintViolationException;
 
 afterEach(function () {
@@ -39,8 +40,12 @@ test('inactive members receive 404 even when active in another tenant', function
 });
 
 test('membership is checked again after it is deactivated', function () {
+    $this->seed(TenantRolesSeeder::class);
     $user = User::factory()->create();
     $tenant = Tenant::factory()->hasAttached($user)->create();
+    setPermissionsTeamId($tenant->id);
+    $user->assignRole('member');
+    setPermissionsTeamId(null);
     $this->actingAs($user);
     $this->get(route('tenant.dashboard', ['tenant' => $tenant->id]))->assertOk();
 

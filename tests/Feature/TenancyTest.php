@@ -2,6 +2,7 @@
 
 use App\Models\Tenant;
 use App\Models\User;
+use Database\Seeders\TenantRolesSeeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -10,9 +11,15 @@ afterEach(function () {
 });
 
 test('tenant routes identify the tenant from each request path', function () {
+    $this->seed(TenantRolesSeeder::class);
     $user = User::factory()->create();
     $firstTenant = Tenant::factory()->hasAttached($user)->create();
     $secondTenant = Tenant::factory()->hasAttached($user)->create();
+    setPermissionsTeamId($firstTenant->id);
+    $user->assignRole('member');
+    setPermissionsTeamId($secondTenant->id);
+    $user->assignRole('member');
+    setPermissionsTeamId(null);
     $this->actingAs($user);
 
     $this->get(route('tenant.dashboard', ['tenant' => $firstTenant->id]))
