@@ -25,6 +25,8 @@ class SetTenantPermissions
 
         abort_unless($tenant instanceof Tenant && $user instanceof User, 404);
 
+        $request->attributes->set('currentTenant', $tenant);
+
         $previousTenantId = $this->permissions->getPermissionsTeamId();
         $this->permissions->setPermissionsTeamId($tenant->getKey());
         $user->unsetRelation('roles')->unsetRelation('permissions');

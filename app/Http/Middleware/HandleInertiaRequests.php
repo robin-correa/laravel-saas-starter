@@ -2,11 +2,16 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Tenancy\GetAccessibleTenants;
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private GetAccessibleTenants $accessibleTenants) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -42,6 +47,29 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'tenancy' => fn (): array => $this->tenantData($request),
+        ];
+    }
+
+    /**
+     * @return array{current: array{id: string, name: string|null}|null, available: list<array{id: string, name: string|null}>}
+     */
+    private function tenantData(Request $request): array
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return ['current' => null, 'available' => []];
+        }
+
+        $tenant = $request->attributes->get('currentTenant');
+
+        return [
+            'current' => $tenant instanceof Tenant ? [
+                'id' => (string) $tenant->getKey(),
+                'name' => $tenant->name,
+            ] : null,
+            'available' => $this->accessibleTenants->handle($user),
         ];
     }
 }

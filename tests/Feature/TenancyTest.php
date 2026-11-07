@@ -5,6 +5,7 @@ use App\Models\User;
 use Database\Seeders\TenantRolesSeeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Inertia\Testing\AssertableInertia as Assert;
 
 afterEach(function () {
     tenancy()->end();
@@ -24,11 +25,13 @@ test('tenant routes identify the tenant from each request path', function () {
 
     $this->get(route('tenant.dashboard', ['tenant' => $firstTenant->id]))
         ->assertOk()
-        ->assertContent('This is your multi-tenant application. The id of the current tenant is '.$firstTenant->id);
+        ->assertInertia(fn (Assert $page) => $page->component('dashboard')
+            ->where('tenancy.current.id', $firstTenant->id));
 
     $this->get(route('tenant.dashboard', ['tenant' => $secondTenant->id]))
         ->assertOk()
-        ->assertContent('This is your multi-tenant application. The id of the current tenant is '.$secondTenant->id);
+        ->assertInertia(fn (Assert $page) => $page->component('dashboard')
+            ->where('tenancy.current.id', $secondTenant->id));
 });
 
 test('tenant routes return 404 when the tenant ID does not exist', function () {

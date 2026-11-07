@@ -1,9 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
+import { TenantSwitcher } from '@/components/tenant-switcher';
 import {
     Sidebar,
     SidebarContent,
@@ -14,15 +15,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { dashboard as tenantDashboard } from '@/routes/tenant';
 import type { NavItem } from '@/types';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -38,18 +32,31 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { tenancy } = usePage().props;
+    const dashboardLink = tenancy.current
+        ? tenantDashboard({ tenant: tenancy.current.id })
+        : dashboard();
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboardLink,
+            icon: LayoutGrid,
+        },
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={dashboardLink} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <TenantSwitcher />
             </SidebarHeader>
 
             <SidebarContent>
