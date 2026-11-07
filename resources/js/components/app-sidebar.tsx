@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as tenantDashboard } from '@/routes/tenant';
+import { index as membersIndex } from '@/routes/tenant/members';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
@@ -43,6 +44,14 @@ export function AppSidebar() {
             icon: LayoutGrid,
         },
     ];
+
+    if (tenancy.current) {
+        mainNavItems.push({
+            title: 'Members',
+            href: membersIndex({ tenant: tenancy.current.id }),
+            icon: Users,
+        });
+    }
 
     return (
         <Sidebar collapsible="icon" variant="inset">
