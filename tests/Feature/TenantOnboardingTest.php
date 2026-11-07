@@ -91,14 +91,14 @@ test('workspace names are validated before anything is created', function (mixed
     'maximum length' => [str_repeat('a', 256), 'The workspace name field must not be greater than 255 characters.'],
 ]);
 
-test('Inertia submissions navigate fully to the tenant dashboard', function () {
+test('Inertia onboarding submissions redirect to the tenant dashboard', function () {
     $this->seed(TenantRolesSeeder::class);
     $this->actingAs(User::factory()->create());
 
     $response = $this->withHeader('X-Inertia', 'true')->post(route('onboarding.store'), ['name' => 'Acme']);
 
     $tenant = Tenant::query()->sole();
-    $response->assertConflict()->assertHeader('X-Inertia-Location', route('tenant.dashboard', ['tenant' => $tenant->id]));
+    $response->assertRedirect(route('tenant.dashboard', ['tenant' => $tenant->id]));
 });
 
 test('active members skip onboarding without gaining ownership of their workspace', function () {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\TenantDashboardController;
 use App\Http\Middleware\EnsureActiveTenantMembership;
 use App\Http\Middleware\SetTenantPermissions;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -28,9 +28,5 @@ Route::middleware([
     EnsureActiveTenantMembership::class,
     SetTenantPermissions::class,
 ])->prefix('{tenant}')->name('tenant.')->group(function () {
-    Route::get('/dashboard', function (): string {
-        Gate::authorize('view', tenant());
-
-        return 'This is your multi-tenant application. The id of the current tenant is '.tenant('id');
-    })->name('dashboard');
+    Route::get('/dashboard', TenantDashboardController::class)->name('dashboard');
 });
