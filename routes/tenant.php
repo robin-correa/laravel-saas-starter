@@ -33,20 +33,21 @@ Route::middleware([
     InitializeTenancyByPath::class,
     EnsureActiveTenantMembership::class,
     SetTenantPermissions::class,
+    'verified',
 ])->prefix('{tenant}')->name('tenant.')->group(function () {
     Route::get('/dashboard', TenantDashboardController::class)->name('dashboard');
-    Route::delete('/membership', [TenantMembershipController::class, 'destroy'])->middleware('verified')->name('membership.destroy');
+    Route::delete('/membership', [TenantMembershipController::class, 'destroy'])->name('membership.destroy');
     Route::put('/ownership/{member}', [TenantOwnershipController::class, 'update'])->whereNumber('member')
-        ->middleware(['verified', 'throttle:6,1'])->name('ownership.update');
-    Route::delete('/', [TenantController::class, 'destroy'])->middleware(['verified', 'throttle:6,1'])->name('destroy');
-    Route::get('/settings', [TenantSettingsController::class, 'edit'])->middleware('verified')->name('settings.edit');
-    Route::patch('/settings', [TenantSettingsController::class, 'update'])->middleware('verified')->name('settings.update');
+        ->middleware('throttle:6,1')->name('ownership.update');
+    Route::delete('/', [TenantController::class, 'destroy'])->middleware('throttle:6,1')->name('destroy');
+    Route::get('/settings', [TenantSettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [TenantSettingsController::class, 'update'])->name('settings.update');
     Route::get('/members', [TenantMemberController::class, 'index'])->name('members.index');
     Route::patch('/members/{member}', [TenantMemberController::class, 'update'])->whereNumber('member')->name('members.update');
     Route::delete('/members/{member}', [TenantMemberController::class, 'destroy'])->whereNumber('member')->name('members.destroy');
-    Route::post('/invitations', [TenantInvitationController::class, 'store'])->middleware(['verified', 'throttle:6,1'])->name('invitations.store');
+    Route::post('/invitations', [TenantInvitationController::class, 'store'])->middleware('throttle:6,1')->name('invitations.store');
     Route::post('/invitations/{invitation}/resend', [TenantInvitationController::class, 'resend'])
-        ->whereNumber('invitation')->middleware(['verified', 'throttle:6,1'])->name('invitations.resend');
+        ->whereNumber('invitation')->middleware('throttle:6,1')->name('invitations.resend');
     Route::delete('/invitations/{invitation}', [TenantInvitationController::class, 'destroy'])
-        ->whereNumber('invitation')->middleware('verified')->name('invitations.destroy');
+        ->whereNumber('invitation')->name('invitations.destroy');
 });
