@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Building2, Check, ChevronsUpDown } from 'lucide-react';
+import { Building2, Check, ChevronsUpDown, Plus } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,6 +15,7 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes/tenant';
+import { create } from '@/routes/workspaces';
 
 export function TenantSwitcher() {
     const { tenancy } = usePage().props;
@@ -23,10 +24,6 @@ export function TenantSwitcher() {
     const label = current
         ? current.name || 'Untitled workspace'
         : 'Select a workspace';
-
-    if (tenancy.available.length === 0) {
-        return null;
-    }
 
     return (
         <SidebarMenu>
@@ -87,6 +84,18 @@ export function TenantSwitcher() {
                                 </Link>
                             </DropdownMenuItem>
                         ))}
+                        {tenancy.available.length > 0 && (
+                            <DropdownMenuSeparator />
+                        )}
+                        <DropdownMenuItem asChild>
+                            <Link
+                                href={create()}
+                                onClick={() => setOpenMobile(false)}
+                            >
+                                <Plus className="size-4" aria-hidden />
+                                Create workspace
+                            </Link>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

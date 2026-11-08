@@ -1,5 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Users } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    Settings,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -17,6 +23,7 @@ import {
 import { dashboard } from '@/routes';
 import { dashboard as tenantDashboard } from '@/routes/tenant';
 import { index as membersIndex } from '@/routes/tenant/members';
+import { edit as workspaceSettings } from '@/routes/tenant/settings';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
@@ -46,11 +53,18 @@ export function AppSidebar() {
     ];
 
     if (tenancy.current) {
-        mainNavItems.push({
-            title: 'Members',
-            href: membersIndex({ tenant: tenancy.current.id }),
-            icon: Users,
-        });
+        mainNavItems.push(
+            {
+                title: 'Members',
+                href: membersIndex({ tenant: tenancy.current.id }),
+                icon: Users,
+            },
+            {
+                title: 'Workspace settings',
+                href: workspaceSettings({ tenant: tenancy.current.id }),
+                icon: Settings,
+            },
+        );
     }
 
     return (
