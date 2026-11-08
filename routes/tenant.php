@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\TenantInvitationController;
 use App\Http\Controllers\TenantMemberController;
+use App\Http\Controllers\TenantMembershipController;
+use App\Http\Controllers\TenantOwnershipController;
 use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureActiveTenantMembership;
 use App\Http\Middleware\SetTenantPermissions;
@@ -32,6 +35,10 @@ Route::middleware([
     SetTenantPermissions::class,
 ])->prefix('{tenant}')->name('tenant.')->group(function () {
     Route::get('/dashboard', TenantDashboardController::class)->name('dashboard');
+    Route::delete('/membership', [TenantMembershipController::class, 'destroy'])->middleware('verified')->name('membership.destroy');
+    Route::put('/ownership/{member}', [TenantOwnershipController::class, 'update'])->whereNumber('member')
+        ->middleware(['verified', 'throttle:6,1'])->name('ownership.update');
+    Route::delete('/', [TenantController::class, 'destroy'])->middleware(['verified', 'throttle:6,1'])->name('destroy');
     Route::get('/settings', [TenantSettingsController::class, 'edit'])->middleware('verified')->name('settings.edit');
     Route::patch('/settings', [TenantSettingsController::class, 'update'])->middleware('verified')->name('settings.update');
     Route::get('/members', [TenantMemberController::class, 'index'])->name('members.index');

@@ -27,6 +27,7 @@ class TenantMemberController extends Controller
         $isOwner = $user->hasRole(TenantRole::Owner);
         $canUpdateRoles = $isOwner && $user->can(TenantPermission::UpdateMemberRole->value);
         $canRemoveMembers = $user->can(TenantPermission::RemoveMembers->value);
+        $canTransferOwnership = Gate::allows('transferOwnership', $tenant);
 
         $members = $tenant->users()
             ->select(['users.id', 'users.name', 'users.email', 'tenant_users.is_active as membership_is_active'])
@@ -34,7 +35,7 @@ class TenantMemberController extends Controller
             ->orderBy('users.name')
             ->orderBy('users.id')
             ->paginate(20)
-            ->through(function (User $member) use ($isOwner, $canUpdateRoles, $canRemoveMembers): array {
+            ->through(function (User $member) use ($isOwner, $canUpdateRoles, $canRemoveMembers, $canTransferOwnership): array {
                 $roles = $member->roles->pluck('name')->all();
                 $isProtected = in_array(TenantRole::Owner->value, $roles, true);
 
@@ -45,6 +46,8 @@ class TenantMemberController extends Controller
                     'is_active' => (bool) $member->getAttribute('membership_is_active'),
                     'roles' => $roles,
                     'can_update_role' => $canUpdateRoles && ! $isProtected,
+                    'can_transfer_ownership' => $canTransferOwnership && ! $isProtected
+                        && (bool) $member->getAttribute('membership_is_active'),
                     'can_remove' => $canRemoveMembers && ! $isProtected
                         && ($isOwner || ! in_array(TenantRole::Admin->value, $roles, true)),
                 ];
