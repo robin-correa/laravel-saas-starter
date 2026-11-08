@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\TenantInvitationController;
 use App\Http\Controllers\TenantMemberController;
+use App\Http\Controllers\TenantSettingsController;
 use App\Http\Middleware\EnsureActiveTenantMembership;
 use App\Http\Middleware\SetTenantPermissions;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,8 @@ Route::middleware([
     SetTenantPermissions::class,
 ])->prefix('{tenant}')->name('tenant.')->group(function () {
     Route::get('/dashboard', TenantDashboardController::class)->name('dashboard');
+    Route::get('/settings', [TenantSettingsController::class, 'edit'])->middleware('verified')->name('settings.edit');
+    Route::patch('/settings', [TenantSettingsController::class, 'update'])->middleware('verified')->name('settings.update');
     Route::get('/members', [TenantMemberController::class, 'index'])->name('members.index');
     Route::patch('/members/{member}', [TenantMemberController::class, 'update'])->whereNumber('member')->name('members.update');
     Route::delete('/members/{member}', [TenantMemberController::class, 'destroy'])->whereNumber('member')->name('members.destroy');
