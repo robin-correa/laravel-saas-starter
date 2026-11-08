@@ -1,6 +1,8 @@
 import { Form, Head, Link, setLayoutProps, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { TenantInvitations } from '@/components/tenant-invitations';
+import type { InvitationsPage } from '@/components/tenant-invitations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -146,7 +148,15 @@ function RemoveMemberDialog({
     );
 }
 
-export default function Members({ members }: { members: MembersPage }) {
+export default function Members({
+    members,
+    inviteRoles,
+    invitations,
+}: {
+    members: MembersPage;
+    inviteRoles: string[];
+    invitations: InvitationsPage | null;
+}) {
     const { tenancy, auth } = usePage().props;
     const tenant = tenancy.current!;
 
@@ -169,6 +179,15 @@ export default function Members({ members }: { members: MembersPage }) {
                     title="Members"
                     description="View workspace members and manage their access."
                 />
+
+                {invitations && (
+                    <TenantInvitations
+                        key={tenant.id}
+                        tenantId={tenant.id}
+                        inviteRoles={inviteRoles}
+                        invitations={invitations}
+                    />
+                )}
 
                 <div className="overflow-x-auto rounded-lg border">
                     <table className="w-full min-w-2xl text-left text-sm">
