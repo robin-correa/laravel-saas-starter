@@ -7,6 +7,7 @@ namespace App\Models;
 use Database\Factories\TenantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 /**
@@ -33,5 +34,13 @@ class Tenant extends BaseTenant
         return $this->belongsToMany(User::class, 'tenant_users')
             ->withPivot('is_active')
             ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<TenantInvitation, $this>
+     */
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(TenantInvitation::class);
     }
 }
