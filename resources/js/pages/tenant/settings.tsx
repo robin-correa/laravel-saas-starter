@@ -1,6 +1,7 @@
 import { Form, Head, setLayoutProps, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { TenantLifecycle } from '@/components/tenant-lifecycle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +10,14 @@ import { edit, update } from '@/routes/tenant/settings';
 
 export default function WorkspaceSettings({
     canUpdate,
+    canLeave,
+    canDelete,
+    canTransferOwnership,
 }: {
     canUpdate: boolean;
+    canLeave: boolean;
+    canDelete: boolean;
+    canTransferOwnership: boolean;
 }) {
     const { tenancy } = usePage().props;
     const tenant = tenancy.current!;
@@ -85,6 +92,12 @@ export default function WorkspaceSettings({
                         </>
                     )}
                 </Form>
+                <TenantLifecycle
+                    tenantId={tenant.id}
+                    canLeave={canLeave}
+                    canDelete={canDelete}
+                    canTransferOwnership={canTransferOwnership}
+                />
             </div>
         </>
     );

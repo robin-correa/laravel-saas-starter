@@ -123,6 +123,8 @@ test('workspace settings expose the selected workspace and permission to rename'
     $this->actingAs($user)->get(route('tenant.settings.edit', ['tenant' => $tenant->id]))
         ->assertOk()->assertInertia(fn (Assert $page) => $page->component('tenant/settings')
         ->where('canUpdate', $canUpdate)->where('tenancy.current', ['id' => $tenant->id, 'name' => 'Workspace A'])
+        ->where('canLeave', $role !== 'owner')->where('canDelete', $role === 'owner')
+        ->where('canTransferOwnership', $role === 'owner')
         ->missing('tenancy.current.internal_note'));
 })->with([
     'owner' => ['owner', true],

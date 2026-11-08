@@ -1,6 +1,7 @@
 import { Form, Head, Link, setLayoutProps, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { TransferTenantOwnershipDialog } from '@/components/transfer-tenant-ownership';
 import { TenantInvitations } from '@/components/tenant-invitations';
 import type { InvitationsPage } from '@/components/tenant-invitations';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ type Member = {
     roles: string[];
     can_update_role: boolean;
     can_remove: boolean;
+    can_transfer_ownership: boolean;
 };
 
 type MembersPage = {
@@ -264,12 +266,20 @@ export default function Members({
                                         </Badge>
                                     </td>
                                     <td className="p-4 text-right">
-                                        {member.can_remove && (
-                                            <RemoveMemberDialog
-                                                tenantId={tenant.id}
-                                                member={member}
-                                            />
-                                        )}
+                                        <div className="flex flex-wrap justify-end gap-2">
+                                            {member.can_transfer_ownership && (
+                                                <TransferTenantOwnershipDialog
+                                                    tenantId={tenant.id}
+                                                    member={member}
+                                                />
+                                            )}
+                                            {member.can_remove && (
+                                                <RemoveMemberDialog
+                                                    tenantId={tenant.id}
+                                                    member={member}
+                                                />
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
