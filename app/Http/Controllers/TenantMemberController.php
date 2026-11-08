@@ -6,6 +6,7 @@ use App\Actions\Tenancy\RemoveTenantMember;
 use App\Actions\Tenancy\UpdateTenantMemberRole;
 use App\Http\Requests\UpdateTenantMemberRequest;
 use App\Models\Tenant;
+use App\Models\TenantInvitation;
 use App\Models\User;
 use App\TenantPermission;
 use App\TenantRole;
@@ -49,7 +50,30 @@ class TenantMemberController extends Controller
                 ];
             });
 
-        return Inertia::render('tenant/members', ['members' => $members]);
+        $inviteRoles = [];
+        foreach ([TenantRole::Member, TenantRole::Admin] as $role) {
+            if (Gate::allows('inviteMember', [$tenant, $role])) {
+                $inviteRoles[] = $role->value;
+            }
+        }
+
+        $invitations = $inviteRoles === [] ? null : $tenant->invitations()
+            ->orderByDesc('id')
+            ->paginate(10, ['id', 'email', 'role', 'expires_at'], 'invitations_page')
+            ->through(fn (TenantInvitation $invitation): array => [
+                'id' => $invitation->getKey(),
+                'email' => $invitation->email,
+                'role' => $invitation->role->value,
+                'expires_at' => $invitation->expires_at->toISOString(),
+                'expired' => $invitation->isExpired(),
+                'can_manage' => in_array($invitation->role->value, $inviteRoles, true),
+            ]);
+
+        return Inertia::render('tenant/members', [
+            'members' => $members,
+            'inviteRoles' => $inviteRoles,
+            'invitations' => $invitations,
+        ]);
     }
 
     public function update(UpdateTenantMemberRequest $request, string $member, UpdateTenantMemberRole $updateRole): RedirectResponse
