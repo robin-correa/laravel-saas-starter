@@ -16,15 +16,35 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 
-export default function DeleteUser() {
+export default function DeleteUser({
+    ownsWorkspaces,
+}: {
+    ownsWorkspaces: boolean;
+}) {
     const passwordInput = useRef<HTMLInputElement>(null);
+
+    if (ownsWorkspaces) {
+        return (
+            <div className="space-y-4">
+                <Heading
+                    variant="small"
+                    title="Delete account"
+                    description="Delete your account and workspace memberships"
+                />
+                <p className="text-sm text-muted-foreground">
+                    Transfer ownership or delete the workspaces you own in
+                    Workspace settings before deleting your account.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
             <Heading
                 variant="small"
                 title="Delete account"
-                description="Delete your account and all of its resources"
+                description="Delete your account and workspace memberships"
             />
             <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
                 <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
@@ -48,10 +68,9 @@ export default function DeleteUser() {
                             Are you sure you want to delete your account?
                         </DialogTitle>
                         <DialogDescription>
-                            Once your account is deleted, all of its resources
-                            and data will also be permanently deleted. Please
-                            enter your password to confirm you would like to
-                            permanently delete your account.
+                            Your account and workspace memberships will be
+                            permanently deleted. Workspaces owned by other users
+                            will remain. Enter your password to confirm.
                         </DialogDescription>
 
                         <Form
@@ -82,6 +101,10 @@ export default function DeleteUser() {
                                         />
 
                                         <InputError message={errors.password} />
+                                        <InputError
+                                            message={errors.ownership}
+                                            role="alert"
+                                        />
                                     </div>
 
                                     <DialogFooter className="gap-2">

@@ -19,6 +19,21 @@ class TenantPolicy
         return $this->hasTenantPermission($user, $tenant, TenantPermission::UpdateTenant);
     }
 
+    public function leave(User $user, Tenant $tenant): bool
+    {
+        return $this->hasActiveMembership($user, $tenant) && ! $user->hasRole(TenantRole::Owner);
+    }
+
+    public function transferOwnership(User $user, Tenant $tenant): bool
+    {
+        return $this->hasActiveMembership($user, $tenant) && $user->hasRole(TenantRole::Owner);
+    }
+
+    public function delete(User $user, Tenant $tenant): bool
+    {
+        return $this->hasActiveMembership($user, $tenant) && $user->hasRole(TenantRole::Owner);
+    }
+
     public function viewMembers(User $user, Tenant $tenant): bool
     {
         return $this->hasTenantPermission($user, $tenant, TenantPermission::ViewMembers);
@@ -54,8 +69,12 @@ class TenantPolicy
 
     private function hasTenantPermission(User $user, Tenant $tenant, TenantPermission $permission): bool
     {
+        return $this->hasActiveMembership($user, $tenant) && $user->can($permission->value);
+    }
+
+    private function hasActiveMembership(User $user, Tenant $tenant): bool
+    {
         return getPermissionsTeamId() === $tenant->getKey()
-            && $user->tenants()->whereKey($tenant->getKey())->wherePivot('is_active', true)->exists()
-            && $user->can($permission->value);
+            && $user->tenants()->whereKey($tenant->getKey())->wherePivot('is_active', true)->exists();
     }
 }

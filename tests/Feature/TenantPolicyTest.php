@@ -110,6 +110,9 @@ test('tenant policies deny access outside the selected tenant', function () {
 
     expect(Gate::forUser($user)->allows('view', $otherTenant))->toBeFalse();
     expect(Gate::forUser($user)->allows('update', $otherTenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('leave', $otherTenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('transferOwnership', $otherTenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('delete', $otherTenant))->toBeFalse();
 });
 
 test('tenant policies deny access to inactive members with owner permissions', function () {
@@ -121,4 +124,23 @@ test('tenant policies deny access to inactive members with owner permissions', f
 
     expect(Gate::forUser($user)->allows('view', $tenant))->toBeFalse();
     expect(Gate::forUser($user)->allows('update', $tenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('leave', $tenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('transferOwnership', $tenant))->toBeFalse();
+    expect(Gate::forUser($user)->allows('delete', $tenant))->toBeFalse();
 });
+
+test('workspace lifecycle policies follow the role hierarchy', function (string $role, bool $canLeave, bool $isOwner) {
+    $this->seed(TenantRolesSeeder::class);
+    $user = User::factory()->create();
+    $tenant = Tenant::factory()->hasAttached($user)->create();
+    setPermissionsTeamId($tenant->id);
+    $user->assignRole($role);
+
+    expect(Gate::forUser($user)->allows('leave', $tenant))->toBe($canLeave);
+    expect(Gate::forUser($user)->allows('transferOwnership', $tenant))->toBe($isOwner);
+    expect(Gate::forUser($user)->allows('delete', $tenant))->toBe($isOwner);
+})->with([
+    'owner' => ['owner', false, true],
+    'admin' => ['admin', true, false],
+    'member' => ['member', true, false],
+]);

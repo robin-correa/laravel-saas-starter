@@ -18,7 +18,12 @@ class TenantSettingsController extends Controller
         $tenant = $this->currentTenant($request);
         Gate::authorize('view', $tenant);
 
-        return Inertia::render('tenant/settings', ['canUpdate' => Gate::allows('update', $tenant)]);
+        return Inertia::render('tenant/settings', [
+            'canUpdate' => Gate::allows('update', $tenant),
+            'canLeave' => Gate::allows('leave', $tenant),
+            'canDelete' => Gate::allows('delete', $tenant),
+            'canTransferOwnership' => Gate::allows('transferOwnership', $tenant),
+        ]);
     }
 
     public function update(UpdateTenantRequest $request): RedirectResponse
