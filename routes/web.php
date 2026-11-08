@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantInvitationAcceptanceController;
 use App\Http\Controllers\TenantOnboardingController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('workspaces/create', [TenantController::class, 'create'])->name('workspaces.create');
+    Route::post('workspaces', [TenantController::class, 'store'])->middleware('throttle:6,1')->name('workspaces.store');
     Route::get('invitations/{token}', [TenantInvitationAcceptanceController::class, 'show'])
         ->where('token', '[A-Za-z0-9]{64}')->name('invitations.show');
     Route::post('invitations/{token}', [TenantInvitationAcceptanceController::class, 'store'])
