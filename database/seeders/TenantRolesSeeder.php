@@ -25,6 +25,8 @@ class TenantRolesSeeder extends Seeder
                 Permission::findOrCreate($permission->value, 'web');
             }
 
+            $permissions->forgetCachedPermissions();
+
             foreach (TenantRole::cases() as $tenantRole) {
                 $role = Role::query()->firstOrCreate([
                     'tenant_id' => null,
